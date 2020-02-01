@@ -2,7 +2,7 @@ import argparse
 import logging
 
 
-def get_count(input_str):
+def get_count(input_str) str ->:
     """
         Função responsável por fazer a contagem de vogais em uma palavra
     """
@@ -12,7 +12,7 @@ def get_count(input_str):
     return num_vowels
 
 
-def run (word):
+def run (word) str ->:
     logging.info(f'Vowels count: {get_count(word)}')
 
 

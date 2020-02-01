@@ -24,6 +24,9 @@ default_args = {
 
 
 def word_to_count(**kwargs):
+    """
+        Python callable responsável por informar a palavra que tera as voguais contadas.
+    """
     logging.info(f"Word to be counted {kwargs['word']}")
 
 
@@ -31,7 +34,15 @@ dag = DAG('callingpython',
         default_args=default_args,
         schedule_interval=None)
 
-#words {"word_list": ["abracadabra","proparoxitona","dtc","airflow","fiap"]}
+"""
+    Leitura de variavel do airflow words um exemplo de variavel segue abaixo para ser criado,
+    Quando a variavel for criada automaticamente a dag ira gerar uma task para cada uma das palavras armazenadas na mesma,
+    pois ela tem o comportamento de ser dinamica.
+    Para que o programa inicie sem erros existe um default var explicito que só é substituido quando há valor no airflow.
+    Exemplo de variavel para criar no airflow:
+        Var name = words 
+        Var values = {"word_list": ["abracadabra","proparoxitona","dtc","airflow","fiap"]}
+""""
 words = Variable.get(
     key="words",
     default_var={
@@ -40,11 +51,19 @@ words = Variable.get(
     deserialize_json=True
 )
 
+"""
+    DummyOperator não serve para execução de tarefas mas pode ser usado como steps de marcação como inicio e fim da execução da dag.
+    Mais informações na documentação oficial.
+"""
 start = DummyOperator(task_id='start', dag=dag)
 end = DummyOperator(task_id='end', dag=dag)
 
 for word in words["word_list"]:
-
+    """
+        A cada execução do loop uma palavra é lida e entrege as tasks do airflow.
+        a primeira task informa qual a palavra que terá suas vogais contadas,
+        a segunda aciona um arquivo .py que contém o metodo que faz a conta de voguais;
+    """
     print_world = PythonOperator(
         task_id=f'print_world_{words["word_list"].index(word)}',
         provide_context=True,
