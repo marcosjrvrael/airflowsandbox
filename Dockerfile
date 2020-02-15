@@ -73,6 +73,7 @@ COPY source/ /usr/local/airflow/source/
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_USER_HOME}/airflow.cfg
 
+RUN chmod u+x /entrypoint.sh
 
 RUN chown -R airflow: ${AIRFLOW_USER_HOME}
 
