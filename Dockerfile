@@ -50,6 +50,7 @@ RUN set -ex \
     && pip install pytz \
     && pip install pyOpenSSL \
     && pip install ndg-httpsclient \
+    && pip install werkzeug==0.16.0 \
     && pip install pyasn1 \
     && pip install oauthlib==3.0.0 \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
@@ -76,6 +77,8 @@ COPY config/airflow.cfg ${AIRFLOW_USER_HOME}/airflow.cfg
 RUN chmod u+x /entrypoint.sh
 
 RUN chown -R airflow: ${AIRFLOW_USER_HOME}
+
+RUN chown airflow: /entrypoint.sh
 
 COPY requirements.txt /code/requirements.txt
 

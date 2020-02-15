@@ -26,6 +26,12 @@ Para terminar o airflow local:
 ```
 make stop
 ```
+
+Acesse a UI do airflow em 
+```
+https://localhost:8081
+```
+
 ### Como funciona o projeto.
 
 A dag tutorial pode ser vista na documentação do airflow [tutorial](https://airflow.apache.org/docs/stable/tutorial.html)

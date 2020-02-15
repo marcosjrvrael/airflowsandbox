@@ -42,7 +42,7 @@ dag = DAG('callingpython',
     Exemplo de variavel para criar no airflow:
         Var name = words 
         Var values = {"word_list": ["abracadabra","proparoxitona","dtc","airflow","fiap"]}
-""""
+"""
 words = Variable.get(
     key="words",
     default_var={
