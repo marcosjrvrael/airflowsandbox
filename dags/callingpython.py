@@ -74,7 +74,7 @@ for word in words["word_list"]:
 
     call_python = BashOperator(
         task_id=f'word_count_{words["word_list"].index(word)}',
-        bash_command=f"python {os.environ['HOME']}/source/simplefunction.py --word {word}",
+        bash_command=f"python {os.environ['HOME']}/source/python/src/simplefunction.py --word {word}",
         dag=dag)
 
     

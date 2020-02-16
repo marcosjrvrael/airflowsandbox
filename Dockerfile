@@ -71,7 +71,7 @@ RUN mkdir /usr/local/airflow/source
 
 COPY dags/ /usr/local/airflow/dags/
 COPY source/ /usr/local/airflow/source/
-COPY script/entrypoint.sh /entrypoint.sh
+COPY config/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_USER_HOME}/airflow.cfg
 
 RUN chmod u+x /entrypoint.sh
