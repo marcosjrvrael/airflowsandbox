@@ -9,6 +9,16 @@ As pastas dags/ e source/ serão mapeadas em volumes dentro do container.
 
 Siga a documentação do airflow para entender a UI: https://airflow.apache.org/ui.html
 
+#### Pré Requisitos
+```
+Linux:
+ - Docker
+```
+```
+Windows:
+ - wsl2 (Subsistemas para linux do windows na versão 2)
+ - Docker (com suporte ao wsl)
+```
 
 ##### Subindo ambiente
 
