@@ -1,0 +1,118 @@
+version: '2.1'
+services:
+    redis:
+        image: 'redis:latest'
+        # command: redis-server --requirepass redispass
+        ports:
+            - "6379:6379"
+
+    postgres:
+        image: postgres:10
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+        # Uncomment these lines to persist data on the local filesystem.
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        volumes:
+            - "~/.airflow_local_pgdata:/var/lib/postgresql/data/pgdata:rw"
+            - logs-volume:/opt/airflow/logs
+
+    webserver:
+        image: sandbox_airflow:latest
+        restart: always
+        depends_on:
+            - postgres
+            - redis
+        environment:
+            - LOAD_EX=n
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - ENVIRONMENT=dev
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            # - REDIS_PASSWORD=redispass
+            # - CELERY_BROKER_URL=redis://redis:6379/0
+        volumes:
+            - ../dags:/opt/airflow/dags:rw
+            - logs-volume:/opt/airflow/logs
+            # - /var/run/docker.sock:/var/run/docker.sock:rw
+            # Uncomment to include access key
+            # - ./auth_key.json:/opt/airflow/auth_key.json
+            # Uncomment to include custom plugins
+            # - ./plugins:/opt/airflow/plugins
+        ports:
+            - "8081:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /opt/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
+
+    flower:
+        image: sandbox_airflow:latest
+        restart: always
+        depends_on:
+            - redis
+        environment:
+            - EXECUTOR=Celery
+            # - REDIS_PASSWORD=redispass
+            # - CELERY_BROKER_URL=redis://redis:6379/0
+            # - CELERY_RESULT_BACKEND=redis://redis:6379/0
+        ports:
+            - "5555:5555"
+        command: flower
+
+    scheduler:
+        image: sandbox_airflow:latest
+        restart: always
+        depends_on:
+            - webserver
+        volumes:
+            - ../dags:/opt/airflow/dags:rw
+            - logs-volume:/opt/airflow/logs
+            # - /var/run/docker.sock:/var/run/docker.sock:rw
+            # Uncomment to include access key
+            # - ./auth_key.json:/opt/airflow/auth_key.json
+            # Uncomment to include custom plugins
+            # - ./plugins:/opt/airflow/plugins
+        environment:
+            - LOAD_EX=n
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - ENVIRONMENT=dev
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            # - REDIS_PASSWORD=redispass
+            # - CELERY_BROKER_URL=redis://redis:6379/0
+        command: scheduler
+
+    worker:
+        image: sandbox_airflow:latest
+        restart: always
+        depends_on:
+            - scheduler
+        volumes:
+            - ../dags:/opt/airflow/dags:rw
+            - logs-volume:/opt/airflow/logs
+            # - /var/run/docker.sock:/var/run/docker.sock:rw
+            # Uncomment to include access key
+            # - ./auth_key.json:/opt/airflow/auth_key.json
+            # Uncomment to include custom plugins
+            # - ./plugins:/opt/airflow/plugins
+        environment:
+            - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            - EXECUTOR=Celery
+            - ENVIRONMENT=dev
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            # - REDIS_PASSWORD=redispass
+            # - CELERY_BROKER_URL=redis://redis:6379/0
+            # - CELERY_RESULT_BACKEND=redis://redis:6379/0
+        command: worker
+volumes:
+    logs-volume:

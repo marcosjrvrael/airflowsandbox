@@ -13,7 +13,7 @@ TRY_LOOP="20"
 : "${POSTGRES_DB:="airflow"}"
 
 # Defaults and back-compat
-: "${AIRFLOW_HOME:="/usr/local/airflow"}"
+: "${AIRFLOW_HOME:="/opt/airflow"}"
 : "${AIRFLOW__CORE__FERNET_KEY:=${FERNET_KEY:=$(python -c "from cryptography.fernet import Fernet; FERNET_KEY = Fernet.generate_key().decode(); print(FERNET_KEY)")}}"
 : "${AIRFLOW__CORE__EXECUTOR:=${EXECUTOR:-Sequential}Executor}"
 
@@ -71,21 +71,27 @@ fi
 
 case "$1" in
   webserver)
-    airflow initdb
+    airflow db init &&
+    airflow users create -e admin@airflow.com -f admin -l admin -p admin -r Admin -u admin
     if [ "$AIRFLOW__CORE__EXECUTOR" = "LocalExecutor" ] || [ "$AIRFLOW__CORE__EXECUTOR" = "SequentialExecutor" ]; then
       # With the "Local" and "Sequential" executors it should all run in one container.
       airflow scheduler &
     fi
     exec airflow webserver
     ;;
-  worker|scheduler)
+  worker)
     # Give the webserver time to run initdb.
     sleep 10
+    exec airflow celery "$@"
+    ;;
+  scheduler)
+    # Give the webserver time to run initdb.
+    sleep 30
     exec airflow "$@"
     ;;
   flower)
-    sleep 10
-    exec airflow "$@"
+    sleep 30
+    exec airflow celery "$@"
     ;;
   version)
     exec airflow "$@"
