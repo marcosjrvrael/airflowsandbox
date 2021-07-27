@@ -1,8 +1,8 @@
-build:
-	docker build -t sandbox_puckel_airflow .
+airflow-build:
+	docker build -t sandbox_airflow .
 
-start: build
-	docker-compose -f local_airflow/docker-compose-CeleryExecutor.yml up -d
+airflow-run: airflow-build
+	docker-compose -f local_airflow/docker-compose.yml up -d
 
-stop:
-	docker-compose -f local_airflow/docker-compose-CeleryExecutor.yml down
+airflow-stop:
+	docker-compose -f local_airflow/docker-compose.yml down
